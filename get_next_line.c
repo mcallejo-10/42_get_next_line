@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcallejo <mcallejo@student.42barcelona.    +#+  +:+       +#+        */
+/*   By: mcallejo <mcallejo@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 16:38:53 by mcallejo          #+#    #+#             */
-/*   Updated: 2023/11/06 21:50:56 by mcallejo         ###   ########.fr       */
+/*   Updated: 2023/11/14 20:15:31 by mcallejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,51 +17,48 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-char	*ft_join_raw_line(int fd, char *raw_line)
+char	*ft_join_raw_line(int fd, char *buf, int n_read, char *raw_line)
 {
-	char		*buf;
-	int			n_read;
-
-	buf = malloc(sizeof(char *) * (BUFFER_SIZE + 1));
-	if (!buf)
+	if (!raw_line)
 	{
-		free(raw_line);
-		return (NULL);
+		raw_line = (char *)malloc(1 * sizeof(char));
+		if (!raw_line)
+			return (NULL);
+		raw_line[0] = '\0';
 	}
-	n_read = 1;
-	while ((ft_strchr(buf, '\n') == NULL) && n_read != 0)
+	raw_line = ft_strjoin(raw_line, buf);
+	while (n_read > 0 && ft_strchr(buf, '\n') == NULL)
 	{
+		if (!raw_line)
+			return (NULL);
 		n_read = read(fd, buf, BUFFER_SIZE);
 		if (n_read == -1)
-		{
-			free(buf);
-			return (NULL);
-		}
+			return (ft_free(&raw_line));
 		buf[n_read] = '\0';
-		raw_line = ft_strjoin(raw_line, buf);
+		if (n_read > 0)
+			raw_line = ft_strjoin(raw_line, buf);
 		if (!raw_line)
 			return (NULL);
 	}
-	free(buf);
 	return (raw_line);
 }
 
-char	*get_line(char *raw_line)
+char	*get_lines(char *raw_line)
 {
 	int		i;
 	char	*line;
 
-	i = 0;
 	if (!raw_line)
-		return (NULL);
-	while (raw_line[i] != '\n' && raw_line[i] != '\0')
-		i++;
-	line = (char *)malloc(sizeof(char *) * (i + 2));
-	if (!line)
+		return(NULL);
+	i = 0;
+	while (raw_line[i] != '\0')
 	{
-		free(raw_line);//
-		return (NULL);
+		if (raw_line[i++] == '\n')
+			break;
 	}
+	line = (char *)malloc(sizeof(char) * (i + 1));
+	if (!line)
+		return (NULL);
 	i = 0;
 	while (raw_line[i] != '\n' && raw_line[i] != '\0')
 	{
@@ -72,7 +69,7 @@ char	*get_line(char *raw_line)
 	{
 		line[i] = '\n';
 		i++;
-	}	
+	}
 	line[i] = '\0';
 	return (line);
 }
@@ -84,17 +81,19 @@ char	*new_raw_line(char *raw_line)
 	char			*new;
 
 	if (!raw_line)
+		return (NULL);
+	i = 0;
+	while (raw_line[i] != '\n' && raw_line[i] != '\0')
+		i++;
+	if (raw_line[i] == '\0')
 	{
 		free(raw_line);
 		return (NULL);
 	}
-	i = 0;
-	while (raw_line[i] != '\n' && raw_line[i] != '\0')
-		i++;
-	new = (char *)malloc((sizeof(char *)) * (ft_strlen(raw_line) - i +1));
+	new = (char *)malloc(sizeof(char) * (ft_strlen(raw_line) - i + 1));
 	if (!new)
 	{
-		free(raw_line);
+		ft_free(&raw_line);
 		return (NULL);
 	}
 	i++;
@@ -102,7 +101,7 @@ char	*new_raw_line(char *raw_line)
 	while (raw_line[i] != '\0')
 		new[j++] = raw_line[i++];
 	new[j] = '\0';
-	free(raw_line);
+	free(raw_line);	
 	return (new);
 }
 
@@ -110,40 +109,53 @@ char	*get_next_line(int fd)
 {
 	char			*line;
 	static char		*raw_line;
+	char			buf[BUFFER_SIZE + 1];
+	int				n_read;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 	{
-		free(raw_line);
+		raw_line = NULL;
 		return (NULL);
 	}
-	raw_line = ft_join_raw_line(fd, raw_line);
-	if (!raw_line)
+	n_read = read(fd, buf, BUFFER_SIZE);
+	if ((!n_read && raw_line == NULL) || n_read == -1)
 	{
-		free(raw_line);
+		//free(raw_line);
 		return (NULL);
 	}
-	line = get_line(raw_line);
+	buf[n_read] = '\0';
+	raw_line = ft_join_raw_line(fd, buf, n_read, raw_line);
+	if (!raw_line)
+		return (NULL);
+	line = get_lines(raw_line);
 	raw_line = new_raw_line(raw_line);
 	return (line);
 }
 
-int	main(void)
-{
-	int		fd;
-	char	*ret;
+// int	main(void)
+// {
+// 	int		fd;
+// 	char	*ret;
 
-	fd = open ("file.txt", O_RDONLY | O_CREAT);
-	ret = "";
-
-	ret = (get_next_line(fd));
-	printf("ret:%s", ret);
-	ret = (get_next_line(fd));
-	printf("ret:%s", ret);
-	ret = (get_next_line(fd));
-	printf("ret:%s", ret);
-	ret = (get_next_line(fd));
-	printf("ret:%s", ret);
-	ret = (get_next_line(fd));
-	printf("ret:%s", ret);
-	return (0);
- }
+// 	fd = open("file.txt", O_RDONLY);
+// 	ret = (get_next_line(fd));
+// 	printf("%s", ret);
+// 	ret = (get_next_line(fd));
+// 	printf("2 %s", ret);
+// 	ret = (get_next_line(1000));
+// 	printf("%s", ret);
+// 	fd = open("file.txt", O_RDONLY);
+// 	ret = (get_next_line(fd));
+// 	printf("4 %s", ret);
+// 	ret = (get_next_line(fd));
+// 	printf("5 %s", ret);
+// 	ret = (get_next_line(fd));
+// 	printf("6 %s", ret);
+// 	ret = (get_next_line(fd));
+// 	printf("7 %s", ret); 
+// 	ret = (get_next_line(100));
+// 	printf(" 8%s", ret);
+// 	free(ret);
+// 	close(fd);
+// 	return (0);
+// }

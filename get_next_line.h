@@ -6,7 +6,7 @@
 /*   By: mcallejo <mcallejo@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 16:39:55 by mcallejo          #+#    #+#             */
-/*   Updated: 2023/11/02 19:39:18 by mcallejo         ###   ########.fr       */
+/*   Updated: 2023/11/14 20:15:43 by mcallejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,15 @@
 # include <stdarg.h>
 # include <stdio.h>
 
-#ifndef	BUFFER_SIZE
-# define BUFFER_SIZE 1
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 10
 
-#endif
+# endif
 
 char	*get_next_line(int fd);
 size_t	ft_strlen(char *str);
 char	*ft_strjoin(char *s1, char *s2);
 char	*ft_strchr(char *s, int c);
+void	*ft_free(char **str);
 
 #endif
