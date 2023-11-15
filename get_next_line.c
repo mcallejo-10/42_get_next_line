@@ -27,7 +27,7 @@ char	*ft_join_raw_line(int fd, char *buf, int n_read, char *raw_line)
 		raw_line[0] = '\0';
 	}
 	raw_line = ft_strjoin(raw_line, buf);
-	while (n_read > 0 && ft_strchr(buf, '\n') == NULL)
+	while (n_read > 0 && (ft_strchr(buf, '\n') == NULL))
 	{
 		if (!raw_line)
 			return (NULL);
@@ -118,9 +118,10 @@ char	*get_next_line(int fd)
 		return (NULL);
 	}
 	n_read = read(fd, buf, BUFFER_SIZE);
-	if ((!n_read && raw_line == NULL) || n_read == -1)
+	if ((n_read == 0 && raw_line == NULL) || n_read == -1)
 	{
-		//free(raw_line);
+		free(raw_line);
+		raw_line = NULL;
 		return (NULL);
 	}
 	buf[n_read] = '\0';
@@ -137,7 +138,7 @@ char	*get_next_line(int fd)
 // 	int		fd;
 // 	char	*ret;
 
-// 	fd = open("file.txt", O_RDONLY);
+// 	fd = open("file.txt", O_RDONLY | O_CREAT);
 // 	ret = (get_next_line(fd));
 // 	printf("%s", ret);
 // 	ret = (get_next_line(fd));

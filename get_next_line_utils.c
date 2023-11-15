@@ -14,9 +14,11 @@
 
 void	*ft_free(char **str)
 {
-	//if (str)
-	free(str);
-	*str = NULL;
+	if (str && *str)
+	{
+		free(*str);
+		*str = NULL;
+	}
 	return (NULL);
 }
 
@@ -55,10 +57,9 @@ char	*ft_strjoin(char *raw, char *buf)
 	char		*str;
 
 	i = 0;
-	if ((raw[i] == '\0' && buf[i] == '\0'))
+	if (!raw[i] && !buf[i])
 	{
 		free(raw);
-		raw = NULL;
 		return (NULL);
 	}
 	str = malloc(sizeof(char) * ((ft_strlen(raw) + ft_strlen(buf)) + 1));
@@ -71,9 +72,9 @@ char	*ft_strjoin(char *raw, char *buf)
 	j = 0;
 	while (raw && raw[++i] != '\0')
 		str[i] = raw[i];
-	while (buf && buf[j] != '\0' && j < ft_strlen(buf))
+	while (buf && buf[j] != '\0')
 		str[i++] = buf[j++];
-	str[ft_strlen(raw) + ft_strlen(buf)] = '\0';
-	free(raw);
+	str[i] = '\0';
+	ft_free(&raw);
 	return (str);
 }
