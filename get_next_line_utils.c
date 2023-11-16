@@ -59,15 +59,11 @@ char	*ft_strjoin(char *raw, char *buf)
 	i = 0;
 	if (!raw[i] && !buf[i])
 	{
-		free(raw);
-		return (NULL);
+		return (ft_free(&raw));
 	}
 	str = malloc(sizeof(char) * ((ft_strlen(raw) + ft_strlen(buf)) + 1));
 	if (!str)
-	{
-		free (raw);
-		return (NULL);
-	}
+		return (ft_free(&raw));
 	i = -1;
 	j = 0;
 	while (raw && raw[++i] != '\0')

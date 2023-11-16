@@ -27,13 +27,16 @@ char	*ft_join_raw_line(int fd, char *buf, int n_read, char *raw_line)
 		raw_line[0] = '\0';
 	}
 	raw_line = ft_strjoin(raw_line, buf);
+	if (!raw_line)
+		return (NULL);
 	while (n_read > 0 && (ft_strchr(buf, '\n') == NULL))
 	{
-		if (!raw_line)
-			return (NULL);
 		n_read = read(fd, buf, BUFFER_SIZE);
 		if (n_read == -1)
-			return (ft_free(&raw_line));
+		{
+			free(raw_line);
+			return (NULL);
+		}
 		buf[n_read] = '\0';
 		if (n_read > 0)
 			raw_line = ft_strjoin(raw_line, buf);
@@ -48,8 +51,6 @@ char	*get_lines(char *raw_line)
 	int		i;
 	char	*line;
 
-	if (!raw_line)
-		return(NULL);
 	i = 0;
 	while (raw_line[i] != '\0')
 	{
@@ -90,7 +91,7 @@ char	*new_raw_line(char *raw_line)
 		free(raw_line);
 		return (NULL);
 	}
-	new = (char *)malloc(sizeof(char) * (ft_strlen(raw_line) - i + 1));
+	new = (char *)malloc(sizeof(char) * (ft_strlen(raw_line) - i));
 	if (!new)
 	{
 		ft_free(&raw_line);
@@ -112,17 +113,10 @@ char	*get_next_line(int fd)
 	char			buf[BUFFER_SIZE + 1];
 	int				n_read;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-	{
-		raw_line = NULL;
-		return (NULL);
-	}
 	n_read = read(fd, buf, BUFFER_SIZE);
-	if ((n_read == 0 && raw_line == NULL) || n_read == -1)
+	if (fd < 0 || BUFFER_SIZE <= 0 || (n_read == 0 && raw_line == NULL) || (n_read == -1))
 	{
-		free(raw_line);
-		raw_line = NULL;
-		return (NULL);
+		return (ft_free(&raw_line));
 	}
 	buf[n_read] = '\0';
 	raw_line = ft_join_raw_line(fd, buf, n_read, raw_line);
