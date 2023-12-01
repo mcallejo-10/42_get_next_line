@@ -6,7 +6,7 @@
 /*   By: mcallejo <mcallejo@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 16:38:53 by mcallejo          #+#    #+#             */
-/*   Updated: 2023/11/14 20:15:31 by mcallejo         ###   ########.fr       */
+/*   Updated: 2023/11/17 14:33:37 by mcallejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ char	*get_lines(char *raw_line)
 	while (raw_line[i] != '\0')
 	{
 		if (raw_line[i++] == '\n')
-			break;
+			break ;
 	}
 	line = (char *)malloc(sizeof(char) * (i + 1));
 	if (!line)
@@ -93,16 +93,13 @@ char	*new_raw_line(char *raw_line)
 	}
 	new = (char *)malloc(sizeof(char) * (ft_strlen(raw_line) - i));
 	if (!new)
-	{
-		ft_free(&raw_line);
-		return (NULL);
-	}
+		return (ft_free(&raw_line));
 	i++;
 	j = 0;
 	while (raw_line[i] != '\0')
 		new[j++] = raw_line[i++];
 	new[j] = '\0';
-	free(raw_line);	
+	free(raw_line);
 	return (new);
 }
 
@@ -114,15 +111,16 @@ char	*get_next_line(int fd)
 	int				n_read;
 
 	n_read = read(fd, buf, BUFFER_SIZE);
-	if (fd < 0 || BUFFER_SIZE <= 0 || (n_read == 0 && raw_line == NULL) || (n_read == -1))
-	{
+	if (fd < 0 || BUFFER_SIZE <= 0 || (n_read == 0 && raw_line == NULL)
+		|| (n_read == -1))
 		return (ft_free(&raw_line));
-	}
 	buf[n_read] = '\0';
 	raw_line = ft_join_raw_line(fd, buf, n_read, raw_line);
 	if (!raw_line)
 		return (NULL);
 	line = get_lines(raw_line);
+	if (!line)
+		return (ft_free(&raw_line));
 	raw_line = new_raw_line(raw_line);
 	return (line);
 }

@@ -6,7 +6,7 @@
 /*   By: mcallejo <mcallejo@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 16:41:07 by mcallejo          #+#    #+#             */
-/*   Updated: 2023/11/14 20:15:39 by mcallejo         ###   ########.fr       */
+/*   Updated: 2023/11/17 14:28:58 by mcallejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	*ft_free(char **str)
 {
-	if (str && *str)
+	if (*str)
 	{
 		free(*str);
 		*str = NULL;
@@ -45,8 +45,6 @@ char	*ft_strchr(char *s, int c)
 			return (&s[i]);
 		i++;
 	}
-	if (c == '\0')
-		return (&s[i]);
 	return (NULL);
 }
 
@@ -58,9 +56,7 @@ char	*ft_strjoin(char *raw, char *buf)
 
 	i = 0;
 	if (!raw[i] && !buf[i])
-	{
 		return (ft_free(&raw));
-	}
 	str = malloc(sizeof(char) * ((ft_strlen(raw) + ft_strlen(buf)) + 1));
 	if (!str)
 		return (ft_free(&raw));
